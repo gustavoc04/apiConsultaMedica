@@ -1,7 +1,8 @@
 import bcrypt from 'bcrypt';
 
-export const hash = async (text: string, rounds: number): Promise<string> => {
+export const hash = async (text: string): Promise<string> => {
     try {
+        const rounds = Number(process.env.BCRYPT_COST);
         const salt = await bcrypt.genSalt(rounds);
         const cypherText = await bcrypt.hash(text, salt);
         return cypherText;

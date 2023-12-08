@@ -25,11 +25,6 @@ export const getData = (token: string): AuthenticationData => {
   return result;
 };
 
-export const hashPassword = async (plainText: string): Promise<string> => {
-  const rounds = Number(process.env.BCRYPT_COST);
-  return hash(plainText, rounds);
-};
-
 export const comparePasswords = async (
   plainText: string,
   cypherText: string

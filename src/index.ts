@@ -1,23 +1,20 @@
-// app.js
+// index.ts
 import 'dotenv/config';
-import express, { Request, Response } from 'express';
+import express from 'express';
 import cors from 'cors';
-import { AddressInfo } from 'net';
-import connection from './connection';
-import userRoutes from './endpoints/Users'; // Importe suas rotas de usuários
+import UserEndpoints from './endpoints/Users';
 
 const app = express();
 
 app.use(express.json());
 app.use(cors());
 
-app.use(userRoutes);
+const usersEndpoints = new UserEndpoints();
 
-const server = app.listen(process.env.PORT || 3003, () => {
-  if (server) {
-    const address = server.address() as AddressInfo;
-    console.log(`Server is running in http://localhost:${address.port}`);
-  } else {
-    console.error(`Failure upon starting server.`);
-  }
+app.post('/login', usersEndpoints.login);
+app.post('/signup', usersEndpoints.signup);
+app.get('/users', usersEndpoints.getUsers);
+
+app.listen(process.env.PORT, () => {
+  console.log(`Server is running in http://localhost:${process.env.PORT}`);
 });
