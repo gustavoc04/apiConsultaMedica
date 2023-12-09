@@ -32,10 +32,6 @@ export const comparePasswords = async (
   return compare(plainText, cypherText);
 };
 
-export const receiveId = (): string => {
-  return generateId();
-};
-
 export interface AuthenticationData {
   id: string;
   role?: string;

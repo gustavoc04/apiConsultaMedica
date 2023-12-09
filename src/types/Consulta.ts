@@ -1,9 +1,9 @@
 export type Consulta = {
-    consultaId: string;
-    pacienteId: string;
-    medicoId: string;
-    nomePaciente: string;
-    nomeMedico: string;
+    consulta_id: string;
+    paciente_id: string;
+    medico_id: string;
+    nome_Paciente: string;
+    nome_Medico: string;
     data: string;
     horario: string;
     descricao: string;
