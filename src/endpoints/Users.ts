@@ -3,7 +3,6 @@ import connection from '../connection';
 import { generateToken, comparePasswords, getData } from '../services/authenticator';
 import { hash, compare } from '../services/hashManager';
 import { LoginRequest } from '../types/LoginRequest';
-import { User } from '../types/User';
 import { SignupRequest } from '../types/SignupRequest';
 import { EditUserRequest } from '../types/EditRequest';
 import { DeleteUserRequest } from '../types/DeleteRequest';
@@ -112,6 +111,13 @@ class UserEndpoints {
         query = query.where('nome', 'ilike', `%${req.query.nome as string}%`);
       }
 
+      // Adiciona a paginação
+      const pageSize = req.query.pageSize ? parseInt(req.query.pageSize as string, 10) : 10;
+      const page = req.query.page ? parseInt(req.query.page as string, 10) : 1;
+      const offset = (page - 1) * pageSize;
+
+      query = query.limit(pageSize).offset(offset);
+
       const users = await query;
       res.status(200).json(users);
     } catch (error) {
@@ -121,6 +127,7 @@ class UserEndpoints {
       res.status(statusCode).json({ error: message });
     }
   };
+
   getMedicos = async (req: Request, res: Response): Promise<void> => {
     try {
       const token = req.headers.authorization as string;
@@ -140,6 +147,13 @@ class UserEndpoints {
         query = query.where('especializacao', 'ilike', `%${especializacao}%`);
       }
 
+      // Adiciona a paginação
+      const pageSize = req.query.pageSize ? parseInt(req.query.pageSize as string, 10) : 10;
+      const page = req.query.page ? parseInt(req.query.page as string, 10) : 1;
+      const offset = (page - 1) * pageSize;
+
+      query = query.limit(pageSize).offset(offset);
+
       const medicos = await query;
       res.status(200).json(medicos);
     } catch (error) {
@@ -153,40 +167,40 @@ class UserEndpoints {
     try {
       const token = req.headers.authorization as string;
       const { id: userId, role: userRole } = getData(token);
-  
+
       const targetUserId = req.params.id;
-  
+
       const { nome, email, senha, confirmSenha, role } = req.body as EditUserRequest;
-  
+
       if (userRole !== 'admin' && userId !== targetUserId) {
         throw { statusCode: 403, message: 'Acesso negado.' };
       }
-  
+
       const targetUser = await connection('users').where('user_id', targetUserId).select().first();
-  
+
       if (!targetUser) {
         throw { statusCode: 404, message: 'Usuário não encontrado.' };
       }
-      
-      if(userRole !== 'admin'){
-        if(!confirmSenha){
-          throw {statusCode: 401, message: 'É necessario a confirmação da sua senha antiga.'}
+
+      if (userRole !== 'admin') {
+        if (!confirmSenha) {
+          throw { statusCode: 401, message: 'É necessario a confirmação da sua senha antiga.' }
         }
       }
 
       if (senha !== undefined && confirmSenha !== undefined && !(await compare(confirmSenha, targetUser.senha))) {
         throw { statusCode: 400, message: 'Confirmação de senha incorreta.' };
       }
-  
+
       const updatedUserData: Record<string, any> = {};
-  
+
       if (nome !== undefined) updatedUserData.nome = nome;
       if (email !== undefined) updatedUserData.email = email;
       if (senha !== undefined) updatedUserData.senha = await hash(senha);
       if (role !== undefined) updatedUserData.role = role;
-  
+
       await connection('users').where('user_id', targetUserId).update(updatedUserData);
-  
+
       res.status(200).json({ message: 'Usuário atualizado com sucesso' });
     } catch (error) {
       console.error(error);
@@ -195,33 +209,34 @@ class UserEndpoints {
       res.status(statusCode).json({ error: message });
     }
   };
+  
   deleteUser = async (req: Request, res: Response): Promise<void> => {
     try {
       const token = req.headers.authorization as string;
       const { id: userId, role: userRole } = getData(token);
-  
+
       const targetUserId = req.params.id;
-  
+
       if (userRole !== 'admin' && userId !== targetUserId) {
         throw { statusCode: 403, message: 'Acesso negado.' };
       }
-  
+
       const targetUser = await connection('users').where('user_id', targetUserId).select().first();
-  
+
       if (!targetUser) {
         throw { statusCode: 404, message: 'Usuário não encontrado.' };
       }
-  
+
       if (userRole !== 'admin') {
         const { confirmSenha } = req.body as DeleteUserRequest;
-  
+
         if (!confirmSenha || !(await compare(confirmSenha, targetUser.senha))) {
           throw { statusCode: 400, message: 'Confirmação de senha incorreta.' };
         }
       }
-  
+
       await connection('users').where('user_id', targetUserId).delete();
-  
+
       res.status(200).json({ message: 'Usuário excluído com sucesso' });
     } catch (error) {
       console.error(error);
@@ -230,7 +245,7 @@ class UserEndpoints {
       res.status(statusCode).json({ error: message });
     }
   };
-  
+
 }
 
 export default UserEndpoints;
