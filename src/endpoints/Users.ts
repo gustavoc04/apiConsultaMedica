@@ -111,7 +111,6 @@ class UserEndpoints {
         query = query.where('nome', 'ilike', `%${req.query.nome as string}%`);
       }
 
-      // Adiciona a paginação
       const pageSize = req.query.pageSize ? parseInt(req.query.pageSize as string, 10) : 10;
       const page = req.query.page ? parseInt(req.query.page as string, 10) : 1;
       const offset = (page - 1) * pageSize;
@@ -147,7 +146,6 @@ class UserEndpoints {
         query = query.where('especializacao', 'ilike', `%${especializacao}%`);
       }
 
-      // Adiciona a paginação
       const pageSize = req.query.pageSize ? parseInt(req.query.pageSize as string, 10) : 10;
       const page = req.query.page ? parseInt(req.query.page as string, 10) : 1;
       const offset = (page - 1) * pageSize;

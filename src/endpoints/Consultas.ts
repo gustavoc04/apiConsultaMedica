@@ -43,7 +43,7 @@ class ConsultaEndpoints {
                 data,
                 horario,
                 descricao,
-                status: 'pendente', // Adiciona o status pendente por padrão
+                status: 'pendente',
             };
 
             await connection('consultas').insert(novaConsulta);
@@ -133,7 +133,6 @@ class ConsultaEndpoints {
                 throw { statusCode: 404, message: 'Consulta não encontrada.' };
             }
 
-            // Se não for admin e não for o médico da consulta, não permitir a edição
             if (userRole !== 'admin' && authenticationData.id !== consulta.medico_id) {
                 throw { statusCode: 403, message: 'Você não tem permissão para editar esta consulta.' };
             }
